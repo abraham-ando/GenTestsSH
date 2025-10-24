@@ -1,4 +1,4 @@
-.idea/
+.idea/**
 
 # Auto-Heal Framework specific
 logs/

@@ -3,16 +3,22 @@
 ## Installation Rapide
 
 ```bash
-# 1. Installer les dépendances
-pip install -r requirements.txt
+# 1. Créer et activer un environnement virtuel
+python3 -m venv .venv
+source .venv/bin/activate  # Sur macOS/Linux
+# .venv\Scripts\activate  # Sur Windows
+
+# 2. Installer le framework
+cd sources/gen-tests-self-healing
+pip install -e .
 playwright install chromium
 
-# 2. Configurer
-copy .env.example .env
+# 3. Configurer
+cp .env.example .env
 # Éditer .env avec votre clé API
 
-# 3. Lancer les tests
-pytest sources/tests/playwright/main.py -v
+# 4. Lancer les tests
+auto-heal test-project sources/src/mon-projet
 ```
 
 ## Premier Test avec Auto-Heal
@@ -360,4 +366,3 @@ Pour questions et support:
 ---
 
 **Powered by Playwright + Python + LLM** 🚀
-
