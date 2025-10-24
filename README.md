@@ -1,58 +1,78 @@
-**Playwright avec Python** pour l'automatisation des tests est déjà une base solide. Intégrer une **solution de "self-healing" avec l’aide d’un LLM (Large Language Model)** peut vraiment améliorer la robustesse et la maintenance des tests automatisés. Voici une réflexion structurée sur ce que tu pourrais mettre en place :
+# GenTestsSH - Framework de Tests Auto-Réparants
 
----
+Framework d'automatisation de tests avec capacités d'auto-réparation, propulsé par Playwright et intégration LLM.
 
-### 🎯 Objectif : Automatisation des tests résiliente et auto-corrective
+## 🚀 Démarrage Rapide
 
-#### 🔧 Problèmes courants en automatisation :
-- Changements fréquents dans le DOM (IDs, classes, structure)
-- Tests cassés à cause de sélecteurs obsolètes
-- Maintenance manuelle coûteuse
-- Faible tolérance aux erreurs dynamiques
+```bash
+# 1. Installer le framework
+cd sources/gen-tests-self-healing
+pip install -e .
+playwright install
 
----
+# 2. Créer votre premier projet
+auto-heal create-project mon-projet
 
-### 🧠 Solution proposée : Playwright + Python + LLM pour Self-Healing
+# 3. Tester votre projet
+auto-heal test-project sources/src/mon-projet
+```
 
-#### 1. **Détection des erreurs intelligentes**
-Utiliser Playwright pour capturer les erreurs (ex : `ElementNotFound`, `TimeoutError`) et transmettre le contexte à un LLM.
+## 📚 Documentation
 
-#### 2. **Analyse contextuelle avec LLM**
-Le LLM peut :
-- Suggérer des sélecteurs alternatifs (basés sur le texte visible, structure du DOM, etc.)
-- Proposer des modifications au script de test
-- Identifier des patterns de changement dans l’application
+- **[Installation Rapide](docs/QUICK_INSTALL.md)** - Guide d'installation pas à pas
+- **[Commandes Disponibles](docs/COMMANDES_UTILISABLES.md)** - Toutes les commandes CLI
+- **[Guide Multi-Projets](docs/MULTI_PROJECT_STRUCTURE.md)** - Architecture et structure
+- **[Configuration LM Studio](docs/LM_STUDIO_SETUP.md)** - Configuration LLM
+- **[FAQ](FAQ.md)** - Questions fréquentes
+- **[Index Complet](docs/INDEX.md)** - Toute la documentation
 
-#### 3. **Mise à jour automatique ou semi-automatique**
-- Générer un patch du test cassé
-- Soumettre à validation humaine (optionnel)
-- Réexécuter le test avec le correctif
+## 🎯 Commandes Principales
 
----
+```bash
+auto-heal create-project <nom>      # Créer un nouveau projet
+auto-heal test-project <chemin>     # Tester un projet
+auto-heal config-check              # Vérifier la configuration
+auto-heal status                    # Voir le statut
+auto-heal --help                    # Aide complète
+```
 
-### 🛠️ Stack technique possible
+## 📁 Structure du Projet
 
-| Composant | Technologie |
-|----------|-------------|
-| Automatisation | Playwright (Python) |
-| LLM | OpenAI GPT-4, Claude, ou modèle local |
-| Monitoring | Playwright Trace Viewer + logs |
-| Interface | CLI ou dashboard Flask/Streamlit |
-| Versioning | Git + auto-commit des correctifs |
+```
+GenTestsSH/
+├── sources/
+│   ├── gen-tests-self-healing/    # Framework (partagé)
+│   └── src/                       # Vos projets (autonomes)
+│       ├── project-sample-1/
+│       └── [vos-projets]/
+├── docs/                          # Documentation
+└── README.md                      # Ce fichier
+```
 
----
+## ✨ Fonctionnalités
 
-### 📈 Avantages
-- Réduction du temps de maintenance
-- Tests plus robustes face aux changements UI
-- Amélioration continue des scripts via apprentissage
+- ✅ Tests Playwright avec auto-réparation
+- ✅ Intégration LLM (OpenAI, Anthropic, LM Studio)
+- ✅ Architecture multi-projets autonomes
+- ✅ CLI puissant et intuitif
+- ✅ Génération automatique de patches
+- ✅ Gestion des backups et historique
 
----
+## 🔧 Configuration
 
-### 🔍 Exemple de scénario
-1. Test échoue sur `button#submit`
-2. LLM analyse le DOM et propose `button:has-text("Submit")`
-3. Patch généré automatiquement
-4. Test relancé et validé
+Le framework supporte plusieurs providers LLM:
 
----
+- **LM Studio** (recommandé pour développement local)
+- **OpenAI** (GPT-4, GPT-3.5)
+- **Anthropic** (Claude)
+
+Voir [LM_STUDIO_SETUP.md](docs/LM_STUDIO_SETUP.md) pour la configuration.
+
+## 📖 Plus d'Informations
+
+Consultez la [documentation complète](docs/INDEX.md) pour plus de détails.
+
+## 📝 Licence
+
+MIT License - voir [LICENSE](LICENSE)
+

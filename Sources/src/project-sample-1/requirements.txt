@@ -1,0 +1,12 @@
+# Gen-Tests-Self-Healing Framework
+# Note: Install the framework first from sources/gen-tests-self-healing/
+# pip install -e ../../gen-tests-self-healing/
+
+# Testing
+pytest>=8.0.0
+pytest-playwright>=0.4.0
+pytest-asyncio>=0.23.0
+playwright>=1.40.0
+
+# Additional project-specific dependencies can be added here
+

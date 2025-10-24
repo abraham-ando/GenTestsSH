@@ -1,1 +1,0 @@
-# soucre playwright tests pour couvrir les exemples projets de /sources/src/README.md

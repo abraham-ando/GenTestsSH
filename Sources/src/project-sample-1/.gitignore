@@ -1,0 +1,102 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Playwright
+test-results/
+playwright-report/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+traces/
+screenshots/
+
+# Auto-heal
+patches/
+backups/
+
+# OS
+.DS_Store
+Thumbs.db
+# Project Sample 1
+
+## Description
+
+A sample login page project demonstrating the Gen-Tests-Self-Healing framework capabilities.
+
+## Structure
+
+```
+project-sample-1/
+├── src/                    # Source files (HTML, CSS, JS, etc.)
+│   ├── index.html         # Login page
+│   └── dashboard.html     # Dashboard page
+├── tests/                  # Test files
+│   └── playwright/         # Playwright tests
+│       └── test_project_sample_1.py
+├── docs/                   # Documentation
+├── requirements.txt        # Project dependencies
+├── pytest.ini             # Pytest configuration
+└── README.md              # This file
+```
+
+## Setup
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Install Playwright browsers:
+   ```bash
+   playwright install
+   ```
+
+## Running Tests
+
+```bash
+# Run all tests from project root
+pytest tests/ -v
+
+# Run with auto-heal framework
+auto-heal test-project .
+
+# Run specific test
+pytest tests/playwright/test_project_sample_1.py -v
+```
+
+## Features Tested
+
+- Login page functionality
+- Dashboard navigation
+- Form validation
+- Auto-healing capabilities
+
+## Development
+
+Add your HTML/web files in `src/` and your Playwright tests in `tests/playwright/`.
+
+The framework will automatically:
+- Detect test failures
+- Analyze the issue using LLM
+- Propose fixes
+- Apply patches with confidence scoring
+

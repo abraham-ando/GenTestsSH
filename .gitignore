@@ -7,7 +7,7 @@ traces/
 screenshots/
 patches/
 backups/
-.env
+sources/src/project-sample-1/tests/.env
 .env.local
 
 # Python
