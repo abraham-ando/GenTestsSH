@@ -52,6 +52,19 @@ def run(test_file: str, max_retries: int, headless: bool, debug: bool):
     try:
         console.print("\n[yellow]Starting test execution...[/yellow]")
 
+        # Configure OpenTelemetry
+        from opentelemetry import trace
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+        from opentelemetry.sdk.resources import Resource
+
+        resource = Resource.create({"service.name": "auto-heal-cli"})
+        provider = TracerProvider(resource=resource)
+        processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317"))
+        provider.add_span_processor(processor)
+        trace.set_tracer_provider(provider)
+
         # Run pytest
         import pytest
         exit_code = pytest.main([test_file, "-v", "--tb=short"])
@@ -242,6 +255,18 @@ def config_check():
         console.print(f"[green]✓ pytest {pytest.__version__} is installed[/green]")
     except ImportError:
         console.print("[red]✗ pytest is not installed[/red]")
+
+
+@cli.command()
+@click.option('--port', default=8080, help='Port to run the UI on')
+def ui(port: int):
+    """Start the Agent Dev UI"""
+    from framework.ui.dev_ui import start_dev_ui
+    try:
+        start_dev_ui(port)
+    except Exception as e:
+        console.print(f"[red]Failed to start UI: {e}[/red]")
+        sys.exit(1)
 
 
 @cli.command()

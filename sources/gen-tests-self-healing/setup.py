@@ -44,6 +44,10 @@ setup(
         "GitPython>=3.1.0",
         "python-dotenv>=1.0.0",
         "pydantic>=2.6.0",
+        "agent-framework>=0.1.0",  # Microsoft Agent Framework
+        "fastapi>=0.109.0",
+        "uvicorn>=0.27.0",
+        "websockets>=12.0",
     ],
     extras_require={
         "dev": [

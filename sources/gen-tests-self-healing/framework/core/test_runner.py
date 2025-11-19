@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright, Page, Error as PlaywrightErro
 
 from .config import config
 from .logger import get_logger
-from ..llm.llm_analyzer import LLMAnalyzer
+from ..agents.orchestrator import AgentOrchestrator
 from .patch_manager import PatchManager
 
 logger = get_logger(__name__)
@@ -20,7 +20,7 @@ class AutoHealTestRunner:
     """Test runner with automatic healing capabilities"""
 
     def __init__(self):
-        self.analyzer = LLMAnalyzer()
+        self.orchestrator = AgentOrchestrator()
         self.patch_manager = PatchManager()
         self.playwright = None
         self.browser = None
@@ -226,8 +226,8 @@ class AutoHealTestRunner:
         """
         logger.info("Attempting to heal test...")
 
-        # Analyze with LLM
-        patch_info = await self.analyzer.analyze_failure(context)
+        # Analyze with Agents
+        patch_info = await self.orchestrator.heal_test(context)
 
         # Check confidence
         confidence = patch_info.get("confidence", 0.0)
