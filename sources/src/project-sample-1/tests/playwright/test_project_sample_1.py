@@ -54,7 +54,7 @@ class TestLoginPage:
             await page.click("#submit")
 
             # Wait for dashboard
-await page.get_by_id('dashboard-link').click()
+page.get_by_text('Dashboard').click()
 
             # Verify we're on the dashboard
             await expect(page.locator("h1")).to_contain_text("Bienvenue")
