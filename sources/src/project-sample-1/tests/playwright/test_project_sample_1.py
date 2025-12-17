@@ -48,7 +48,7 @@ class TestLoginPage:
 
             # Fill in credentials
             await page.get_by_label('username').fill('admin')
-            await page.fill("#password", "password123")
+            await page.fill('#password', 'password123')
 
             # Click submit button
             await page.click("#submit")
