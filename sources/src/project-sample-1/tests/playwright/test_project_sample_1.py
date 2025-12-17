@@ -54,7 +54,7 @@ class TestLoginPage:
             await page.click("#submit")
 
             # Wait for dashboard
-            await page.wait_for_url("**/dashboard.html", timeout=5000)
+await page.get_element_by_selector('#dashboard').wait_for_state('visible', timeout=5000)
 
             # Verify we're on the dashboard
             await expect(page.locator("h1")).to_contain_text("Bienvenue")
@@ -72,7 +72,7 @@ class TestLoginPage:
             await page.fill("#password", "wrong")
 
             # Click submit
-page.get_by_id('submit').click()
+            await page.locator('#submit').click()
 
             # Verify error message appears
             await expect(page.locator(".message.error")).to_be_visible()

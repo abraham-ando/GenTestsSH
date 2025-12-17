@@ -48,6 +48,9 @@ setup(
         "fastapi>=0.109.0",
         "uvicorn>=0.27.0",
         "websockets>=12.0",
+        "opentelemetry-api>=1.20.0",
+        "opentelemetry-sdk>=1.20.0",
+        "opentelemetry-exporter-otlp>=1.20.0",
     ],
     extras_require={
         "dev": [

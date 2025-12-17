@@ -1,1 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Project Sample 1</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="login-form">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="button" id="submit" onclick="login()">Se connecter</button>
+    </form>
+    <div id="error-message" class="message error" style="display: none; color: red;">Identifiant ou mot de passe incorrect</div>
 
+    <script>
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            if (user === 'admin' && pass === 'password123') {
+                window.location.href = 'dashboard.html';
+            } else {
+                document.getElementById('error-message').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
