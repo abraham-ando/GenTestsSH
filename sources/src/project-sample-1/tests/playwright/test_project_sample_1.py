@@ -47,14 +47,14 @@ class TestLoginPage:
             await page.goto(f"{BASE_URL}/index.html")
 
             # Fill in credentials
-            await page.get_by_label('Username', exact=True).fill('admin')
+await page.get_by_label('username').fill('admin')
             await page.fill("#password", "password123")
 
             # Click submit button
             await page.click("#submit")
 
             # Wait for dashboard
-page.get_by_text('Dashboard').click()
+            await page.wait_for_url("**/dashboard.html")
 
             # Verify we're on the dashboard
             await expect(page.locator("h1")).to_contain_text("Bienvenue")
