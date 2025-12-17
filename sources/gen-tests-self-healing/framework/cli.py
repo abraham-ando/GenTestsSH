@@ -106,6 +106,19 @@ def test_project(project_path: str, headless: bool):
     
     # Run pytest on the project's test directory
     try:
+        # Configure OpenTelemetry to send traces to Dev UI
+        from opentelemetry import trace
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+        from opentelemetry.sdk.resources import Resource
+
+        resource = Resource.create({"service.name": "auto-heal-test-project"})
+        provider = TracerProvider(resource=resource)
+        processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True))
+        provider.add_span_processor(processor)
+        trace.set_tracer_provider(provider)
+        
         import pytest
         exit_code = pytest.main([str(test_dir), "-v", "--tb=short"])
         

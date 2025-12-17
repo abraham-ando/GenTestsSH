@@ -34,19 +34,24 @@ class AgentOrchestrator:
         logger.info("Requesting analysis from AnalysisAgent...")
         
         try:
-            # We expect the agent to return a JSON string matching AnalysisResult
+            # Agent.run() returns an AgentRunResponse object
             analysis_response = await self.analysis_agent.run(analysis_prompt)
             
-            # Parse the response
-            # Note: In a full integration, we would check if response is already an object
-            if isinstance(analysis_response, str):
-                # Clean up markdown if present
-                clean_response = analysis_response.replace("```json", "").replace("```", "").strip()
-                analysis_data = json.loads(clean_response)
-                analysis = AnalysisResult(**analysis_data)
+            # Extract text from response
+            if hasattr(analysis_response, 'text'):
+                response_text = analysis_response.text
+            elif hasattr(analysis_response, 'content'):
+                response_text = analysis_response.content
+            elif isinstance(analysis_response, str):
+                response_text = analysis_response
             else:
-                # Assume it's already the model or dict
-                analysis = AnalysisResult(**analysis_response)
+                # Try to convert to string
+                response_text = str(analysis_response)
+            
+            # Clean up markdown if present
+            clean_response = response_text.replace("```json", "").replace("```", "").strip()
+            analysis_data = json.loads(clean_response)
+            analysis = AnalysisResult(**analysis_data)
                 
             logger.info(f"Analysis complete. Root cause: {analysis.root_cause}")
             logger.info(f"Confidence: {analysis.confidence}")
@@ -62,12 +67,19 @@ class AgentOrchestrator:
         try:
             patch_response = await self.patch_agent.run(patch_prompt)
             
-            if isinstance(patch_response, str):
-                clean_response = patch_response.replace("```json", "").replace("```", "").strip()
-                patch_data = json.loads(clean_response)
-                patch = PatchResult(**patch_data)
+            # Extract text from response
+            if hasattr(patch_response, 'text'):
+                response_text = patch_response.text
+            elif hasattr(patch_response, 'content'):
+                response_text = patch_response.content
+            elif isinstance(patch_response, str):
+                response_text = patch_response
             else:
-                patch = PatchResult(**patch_response)
+                response_text = str(patch_response)
+            
+            clean_response = response_text.replace("```json", "").replace("```", "").strip()
+            patch_data = json.loads(clean_response)
+            patch = PatchResult(**patch_data)
                 
             logger.info("Patch generated successfully")
 
