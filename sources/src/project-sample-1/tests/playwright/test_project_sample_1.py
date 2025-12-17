@@ -72,7 +72,7 @@ class TestLoginPage:
             await page.fill("#password", "wrong")
 
             # Click submit
-await page.get_by_role('button', name='Seconnecter').click()
+await page.get_by_role('button', 'submit').click()
 
             # Verify error message appears
             await expect(page.locator(".message.error")).to_be_visible()
