@@ -47,7 +47,7 @@ class TestLoginPage:
             await page.goto(f"{BASE_URL}/index.html")
 
             # Fill in credentials
-await page.get_by_label('Username', exact=True).fill('admin')
+            await page.get_by_label('Username', exact=True).fill('admin')
             await page.fill("#password", "password123")
 
             # Click submit button
@@ -68,11 +68,11 @@ await page.get_by_label('Username', exact=True).fill('admin')
             await page.goto(f"{BASE_URL}/index.html")
 
             # Fill in wrong credentials
-await page.get_by_label("Username").fill("wrong")
+            await page.get_by_label("Username").fill("wrong")
             await page.fill("#password", "wrong")
 
             # Click submit
-            await page.get_by_role("button", name="Connexion").click()
+await page.get_by_role('button', name='Seconnecter').click()
 
             # Verify error message appears
             await expect(page.locator(".message.error")).to_be_visible()
@@ -108,7 +108,7 @@ class TestDashboard:
             await page.goto(f"{BASE_URL}/dashboard.html")
 
             # Verify main elements are present
-await expect(page.get_by_role('heading', name='Bienvenue')).to_contain_text("Bienvenue")
+            await expect(page.get_by_role('heading', name='Bienvenue')).to_contain_text("Bienvenue")
             await expect(page.locator(".card")).to_have_count(3)
 
         result = await runner.run_test_with_healing(test_func)
