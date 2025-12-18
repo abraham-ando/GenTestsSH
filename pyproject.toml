@@ -1,0 +1,11 @@
+[project]
+name = "gen-tests-workspace"
+version = "0.1.0"
+description = "Workspace Monorepo pour GenTestsSH"
+requires-python = ">=3.12"
+
+[tool.uv.workspace]
+members = [
+    "apps/backend",
+    "libs/*"
+]

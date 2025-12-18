@@ -2,48 +2,50 @@
 
 ## Overview
 
-The GenTestsSH workspace is designed to support multiple independent projects, each with its own tests, configuration, and build setup.
+The GenTestsSH workspace is a **Monorepo** hosting:
+
+1.  **Apps**: Backend (FastAPI/DDD) and Frontend (Microsoft Dev UI).
+2.  **Sources**: The Test Framework (`gen-tests-self-healing`) and independent Test Projects.
+
+## Docker Services
+
+The stack is managed via `docker-compose.yml`:
+
+- **Backend** (`http://localhost:8000`): Exposes API and mounts the Dev UI backend logic.
+- **Frontend** (`http://localhost:5173`): Microsoft Agent Framework Dev UI.
+- **Worker**: Celery worker for executing async self-healing tasks.
+- **Redis**: Message broker and state store.
 
 ## Directory Structure
 
 ```
 GenTestsSH/
 │
-├── sources/
-│   ├── gen-tests-self-healing/     # Framework (shared by all projects)
-│   │   ├── framework/
-│   │   │   ├── cli.py              # CLI tool
-│   │   │   ├── core/               # Core framework
-│   │   │   ├── llm/                # LLM integration
-│   │   │   └── utils/              # Utilities
-│   │   ├── setup.py                # Framework installation
-│   │   └── README.md
+├── apps/                           # Applications (Monorepo)
+│   ├── backend/                    # Backend FastAPI + Celery
+│   │   ├── src/
+│   │   │   ├── domain/             # Entities & Ports (DDD)
+│   │   │   ├── application/        # Use Cases & Services
+│   │   │   ├── infrastructure/     # Adapters (Celery, Redis, Config)
+│   │   │   └── interfaces/         # API Routers
+│   │   └── Dockerfile
 │   │
-│   ├── src/                        # All projects go here
-│   │   ├── project-sample-1/       # Example project 1
-│   │   │   ├── src/                # Project source files
-│   │   │   ├── tests/              # Project tests
-│   │   │   │   └── playwright/
-│   │   │   ├── docs/               # Project documentation
-│   │   │   ├── requirements.txt    # Project dependencies
-│   │   │   ├── pytest.ini          # Pytest config
-│   │   │   ├── .gitignore
-│   │   │   └── README.md
-│   │   │
-│   │   ├── project-sample-2/       # Example project 2
-│   │   │   └── (same structure)
-│   │   │
-│   │   └── your-project/           # Your new project
-│   │       └── (same structure)
-│   │
-│   └── tests/                      # Global/integration tests (optional)
-│       └── playwright/
+│   └── frontend/                   # Microsoft Agent Framework Dev UI
+│       ├── src/
+│       └── Dockerfile
 │
-├── docs/                           # Global documentation
-├── logs/                           # Global logs
-├── patches/                        # Global patches
-├── backups/                        # Global backups
-└── README.md                       # Main README
+├── sources/
+│   ├── gen-tests-self-healing/     # Framework Core (Python package)
+│   │
+│   ├── src/                        # Test Projects
+│   │   ├── project-sample-1/
+│   │   └── ...
+│   │
+│   └── tests/                      # Global tests
+│
+├── docs/                           # Documentation
+├── docker-compose.yml              # Service Orchestration
+└── README.md
 ```
 
 ## Creating a New Project
@@ -68,27 +70,31 @@ auto-heal create-project my-project-name
 ### Method 2: Manual Creation
 
 1. **Create project directory:**
+
    ```bash
    mkdir sources/src/my-project
    cd sources/src/my-project
    ```
 
 2. **Create required directories:**
+
    ```bash
    mkdir src tests tests/playwright docs
    ```
 
 3. **Create `requirements.txt`:**
+
    ```txt
    # Gen-Tests-Self-Healing Framework
    # Install from: pip install -e ../../gen-tests-self-healing/
-   
+
    pytest>=8.0.0
    pytest-playwright>=0.4.0
    playwright>=1.40.0
    ```
 
 4. **Create `pytest.ini`:**
+
    ```ini
    [pytest]
    testpaths = tests
@@ -202,26 +208,31 @@ auto-heal restore <backup-file> <target-file>
 ## Best Practices
 
 ### 1. **Keep Projects Autonomous**
+
 - Each project should build and test independently
 - Don't create dependencies between projects
 - Use the framework as the only shared dependency
 
 ### 2. **Consistent Structure**
+
 - Follow the standard project template
 - Use the same directory names across projects
 - Keep configuration files consistent
 
 ### 3. **Version Control**
+
 - Each project can have its own git repo if needed
 - Or use git submodules for project separation
 - Always commit project-specific changes to project directories
 
 ### 4. **Testing Strategy**
+
 - Write tests specific to each project
 - Use global tests (in `sources/tests/`) for integration only
 - Keep test data within project directories
 
 ### 5. **Documentation**
+
 - Maintain project-specific README
 - Document project-specific setup in project docs
 - Link to framework docs for general information
@@ -304,21 +315,25 @@ pytest --collect-only
 ### Moving Existing Tests to Project Structure
 
 1. **Create project structure:**
+
    ```bash
    auto-heal create-project existing-project
    ```
 
 2. **Move source files:**
+
    ```bash
    mv old-src/* sources/src/existing-project/src/
    ```
 
 3. **Move test files:**
+
    ```bash
    mv old-tests/* sources/src/existing-project/tests/playwright/
    ```
 
 4. **Update imports in tests:**
+
    - Change absolute paths to relative
    - Update framework imports to use installed package
 
@@ -336,6 +351,7 @@ pytest --collect-only
 - ✅ Projects can be built and tested independently
 - ✅ Use `auto-heal create-project` to scaffold new projects
 - ✅ Use `auto-heal test-project` to test specific projects
+
 # Project Sample 1 - Test Documentation
 
 ## Test Structure
@@ -349,33 +365,39 @@ This project contains automated Playwright tests with self-healing capabilities.
 Main test file containing:
 
 #### TestLoginPage
+
 - `test_login_success()` - Tests successful login flow
 - `test_login_failure()` - Tests failed login with wrong credentials
 - `test_form_validation()` - Tests HTML5 form validation
 
 #### TestDashboard
+
 - `test_dashboard_loads()` - Tests dashboard page loads correctly
 - `test_logout_button()` - Tests logout functionality
 
 ## Running Tests
 
 ### Run all tests
+
 ```bash
 cd sources/src/project-sample-1
 pytest tests/ -v
 ```
 
 ### Run specific test class
+
 ```bash
 pytest tests/playwright/test_project_sample_1.py::TestLoginPage -v
 ```
 
 ### Run specific test
+
 ```bash
 pytest tests/playwright/test_project_sample_1.py::TestLoginPage::test_login_success -v
 ```
 
 ### Run with auto-heal
+
 ```bash
 auto-heal test-project .
 ```
@@ -383,6 +405,7 @@ auto-heal test-project .
 ## Test Reports
 
 Test results, screenshots, and traces are saved in:
+
 - `test-results/` - Test execution results
 - `screenshots/` - Failure screenshots
 - `traces/` - Playwright traces
@@ -397,13 +420,13 @@ Test results, screenshots, and traces are saved in:
 4. Run tests to verify
 
 Example:
+
 ```python
 async def test_my_feature(runner: AutoHealTestRunner):
     async def test_func(page: Page):
         await page.goto(f"{BASE_URL}/my-page.html")
         # Your test code here
-    
+
     result = await runner.run_test_with_healing(test_func)
     assert result["status"] == "passed"
 ```
-

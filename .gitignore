@@ -1,4 +1,6 @@
-.idea/**
+# Workspace
+.idea/
+.vscode/
 
 # Auto-Heal Framework specific
 logs/
@@ -7,8 +9,14 @@ traces/
 screenshots/
 patches/
 backups/
-sources/src/project-sample-1/tests/.env
-.env.local
+test-results/
+playwright-report/
+
+# Environment files
+.env
+.env.*
+!.env.example
+sources/src/*/tests/.env
 
 # Python
 __pycache__/
@@ -37,24 +45,26 @@ wheels/
 venv/
 ENV/
 env/
+.uv/
+
+# Node.js / Frontend
+node_modules/
+apps/frontend/dist/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 *.cover
-test-results/
-playwright-report/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
 
 # OS
 .DS_Store
 Thumbs.db
 desktop.ini
+
 

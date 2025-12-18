@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_RESPONSES_MODEL_ID=${OPENAI_RESPONSES_MODEL_ID}
+    depends_on:
+      - redis
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./libs:/app/libs
+    command: uvicorn apps.backend.src.interfaces.http.api:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_RESPONSES_MODEL_ID=${OPENAI_RESPONSES_MODEL_ID}
+    depends_on:
+      - redis
+      - backend
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./libs:/app/libs
+    command: celery -A apps.backend.src.infrastructure.celery.app worker --loglevel=info
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+

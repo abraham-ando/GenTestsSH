@@ -3,21 +3,33 @@
 ## Installation Rapide
 
 ```bash
+# 1. Configurer l'environnement
+cp .env.example .env
+# Éditer .env avec votre clé OPENAI_API_KEY
+# OPENAI_API_KEY=sk-...
+
+# 2. Lancer la stack avec Docker (Recommandé)
+docker-compose up -d --build
+
+# 3. Accéder aux services
+# - Frontend (Dev UI): http://localhost:5173
+# - Backend API: http://localhost:8000
+# - Documentation API: http://localhost:8000/docs
+```
+
+### Installation Locale (Sans Docker)
+
+```bash
 # 1. Créer et activer un environnement virtuel
 python3 -m venv .venv
-source .venv/bin/activate  # Sur macOS/Linux
-# .venv\Scripts\activate  # Sur Windows
+source .venv/bin/activate
 
 # 2. Installer le framework
 cd sources/gen-tests-self-healing
 pip install -e .
 playwright install chromium
 
-# 3. Configurer
-cp .env.example .env
-# Éditer .env avec votre clé API
-
-# 4. Lancer les tests
+# 3. Lancer les tests
 auto-heal test-project sources/src/mon-projet
 ```
 
@@ -34,15 +46,15 @@ from test_runner import AutoHealTestRunner
 async def main():
     runner = AutoHealTestRunner()
     await runner.setup()
-    
+
     async def test_login(page: Page):
         await page.goto("https://example.com")
         await page.click("#login-button")  # Si ce sélecteur change...
         # ... le framework trouvera automatiquement le nouveau !
-    
+
     result = await runner.run_test_with_healing(test_login)
     print(f"Result: {result}")
-    
+
     await runner.teardown()
 
 if __name__ == "__main__":
@@ -52,13 +64,14 @@ if __name__ == "__main__":
 ## Architecture Simplifiée
 
 ```
-Test échoue → Capture contexte + DOM → Envoi LLM → 
+Test échoue → Capture contexte + DOM → Envoi LLM →
 Analyse + Génération patch → Application → Re-test
 ```
 
 ## Configuration Minimum
 
 `.env`:
+
 ```env
 OPENAI_API_KEY=sk-xxx
 LLM_PROVIDER=openai
@@ -97,6 +110,7 @@ Confiance: 0.92
 2. Lisez `PROJECT_README.md` pour la documentation complète
 3. Personnalisez la configuration dans `.env`
 4. Créez vos propres tests avec auto-heal !
+
 # Playwright Auto-Heal Framework
 
 Un framework de tests automatisés avec capacité d'auto-correction utilisant Playwright, Python et LLM (GPT-4 / Claude).
@@ -139,11 +153,13 @@ playwright install chromium
 ### Configuration
 
 1. Copier le fichier `.env.example` vers `.env`:
+
 ```bash
 copy .env.example .env
 ```
 
 2. Éditer `.env` et ajouter vos clés API:
+
 ```env
 OPENAI_API_KEY=sk-votre-cle-ici
 LLM_PROVIDER=openai
@@ -211,6 +227,7 @@ python sources/tests/playwright/cli.py init
 ### 1. Détection d'échec
 
 Lorsqu'un test échoue, le framework capture:
+
 - Type d'erreur et message
 - URL de la page
 - Snapshot du DOM
@@ -221,6 +238,7 @@ Lorsqu'un test échoue, le framework capture:
 ### 2. Analyse LLM
 
 Le contexte est envoyé à un LLM qui:
+
 - Analyse pourquoi le sélecteur a échoué
 - Propose un sélecteur alternatif plus robuste
 - Génère un patch Python minimal
@@ -229,6 +247,7 @@ Le contexte est envoyé à un LLM qui:
 ### 3. Application du patch
 
 Si la confiance dépasse le seuil configuré:
+
 - Backup du fichier original
 - Application du patch
 - Commit Git automatique (optionnel)
@@ -241,11 +260,13 @@ Le test est relancé automatiquement avec le nouveau sélecteur.
 ## 📊 Exemple de Patch
 
 **Original (échoué):**
+
 ```python
 await page.click("#submit")
 ```
 
 **Après auto-heal:**
+
 ```python
 await page.get_by_role("button", name="Se connecter").click()
 ```
@@ -255,6 +276,7 @@ await page.get_by_role("button", name="Se connecter").click()
 ### Sélecteurs robustes
 
 Le LLM privilégie dans l'ordre:
+
 1. `data-testid` attributes
 2. ARIA roles et labels
 3. Texte visible
@@ -264,6 +286,7 @@ Le LLM privilégie dans l'ordre:
 ### Accessibilité (WCAG 2.2 + RGAA 4)
 
 Les tests vérifient:
+
 - Labels appropriés
 - Attributs ARIA
 - Navigation clavier
@@ -282,6 +305,7 @@ Les tests vérifient:
 ### Logs
 
 Les logs sont disponibles dans:
+
 ```
 logs/auto-heal.log
 ```
@@ -289,11 +313,13 @@ logs/auto-heal.log
 ### Traces Playwright
 
 Les traces sont sauvegardées dans:
+
 ```
 traces/trace_<timestamp>.zip
 ```
 
 Visualiser avec:
+
 ```bash
 playwright show-trace traces/trace_<timestamp>.zip
 ```
@@ -301,6 +327,7 @@ playwright show-trace traces/trace_<timestamp>.zip
 ### Patches
 
 Historique des patches dans:
+
 ```
 patches/patch_<timestamp>.json
 ```
@@ -308,11 +335,13 @@ patches/patch_<timestamp>.json
 ## 🧪 Tests Disponibles
 
 ### TestLoginPage
+
 - `test_login_success`: Connexion réussie
 - `test_login_failure`: Connexion échouée
 - `test_form_validation`: Validation HTML5
 
 ### TestDashboard
+
 - `test_dashboard_loads`: Chargement du dashboard
 - `test_logout_button`: Déconnexion
 
@@ -326,6 +355,7 @@ patches/patch_<timestamp>.json
 ## 🔄 CI/CD
 
 Le workflow GitHub Actions:
+
 - Exécute les tests sur Python 3.10, 3.11, 3.12
 - Upload des traces et screenshots en cas d'échec
 - Sauvegarde des patches générés
@@ -334,6 +364,7 @@ Le workflow GitHub Actions:
 ## 📈 Métriques
 
 Le framework track:
+
 - Taux de succès des auto-heals
 - Confiance moyenne des patches
 - Temps de healing
@@ -360,6 +391,7 @@ MIT
 ## 📞 Support
 
 Pour questions et support:
+
 - Issues GitHub
 - Documentation: [docs/](docs/)
 

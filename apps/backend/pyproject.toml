@@ -1,0 +1,32 @@
+[project]
+name = "gen-tests-backend"
+version = "0.1.0"
+description = "FastAPI Backend for GenTestsSH"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "celery>=5.3.0",
+    "redis>=5.0.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "openai>=1.0.0",
+    "anthropic>=0.3.0",
+    "agent-framework>=0.1.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "gen-tests-shared-models",
+    "loguru>=0.7.0",
+    "agent-framework-devui>=1.0.0b1"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.uv.sources]
+gen-tests-shared-models = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
