@@ -6,8 +6,8 @@ import json
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
 from agent_framework.openai import OpenAIResponsesClient
-from ..core.config import config
-from ..core.logger import get_logger
+from ...infrastructure.config.config import config
+from ...infrastructure.config.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -19,6 +19,7 @@ class AnalysisResult(BaseModel):
     confidence: float = Field(description="Confidence score between 0.0 and 1.0")
     reasoning: str = Field(description="Explanation of why this selector is better", default="No reasoning provided")
     alternative_selectors: list[str] = Field(description="Alternative selectors", default_factory=list)
+    tool_call: Optional[Dict[str, Any]] = Field(description="Optional tool call to MCP browser", default=None)
 
 class PatchResult(BaseModel):
     """Result of the patch generation"""
@@ -38,15 +39,16 @@ class AgentFactory:
     @staticmethod
     def create_analysis_agent():
         """Create the Analysis Agent"""
-        api_key = config.llm.openai_api_key
-        model = config.llm.openai_model
+        api_key = config.OPENAI_API_KEY
+        model = config.OPENAI_MODEL
         
         # Handle LM Studio local URL if present
-        base_url = getattr(config.llm, 'openai_base_url', None)
+        base_url = config.OPENAI_BASE_URL
         
         client_args = {
             "api_key": api_key,
             "model_id": model,
+            "timeout": 120.0,
         }
         if base_url:
             client_args["base_url"] = base_url
@@ -63,41 +65,23 @@ class AgentFactory:
             name="AnalysisAgent",
             instructions="""You are an expert Playwright Test Automation Engineer.
 
-**CRITICAL**: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks.
-Start with { and end with }. Nothing else.
+**CRITICAL**: You MUST respond with ONLY valid JSON. 
+NO EXPLANATIONS, NO MARKDOWN, NO CODE BLOCKS, NO CONVERSATION.
+Your response MUST start with '{' and end with '}'. Nothing else.
 
-Your task:
-1. Analyze the test failure
-2. Identify why the selector failed
-3. Propose a better selector
-
-Prefer semantic selectors: get_by_role, get_by_text, get_by_label.
-Avoid unstable IDs or long CSS chains.
-
-Response format (EXACT JSON):
-{
-  "root_cause": "brief explanation",
-  "suggested_selector": "new selector",
-  "selector_method": "method name",
-  "confidence": 0.85,
-  "reasoning": "why this selector is better",
-  "alternative_selectors": ["alt1", "alt2"]
-}
-
-Do NOT include any text before or after the JSON object.
-"""
         )
 
     @staticmethod
     def create_patch_agent():
         """Create the Patch Agent"""
-        api_key = config.llm.openai_api_key
-        model = config.llm.openai_model
+        api_key = config.OPENAI_API_KEY
+        model = config.OPENAI_MODEL
         
-        base_url = getattr(config.llm, 'openai_base_url', None)
+        base_url = config.OPENAI_BASE_URL
         client_args = {
             "api_key": api_key,
             "model_id": model,
+            "timeout": 120.0,
         }
         if base_url:
             client_args["base_url"] = base_url
@@ -108,20 +92,29 @@ Do NOT include any text before or after the JSON object.
             name="PatchAgent",
             instructions="""You are an expert Python Developer specializing in Playwright.
 
-**CRITICAL**: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks.
-Start with { and end with }. Nothing else.
+**CRITICAL**: You MUST respond with ONLY valid JSON. 
+NO EXPLANATIONS, NO MARKDOWN, NO CODE BLOCKS, NO CONVERSATION.
+Your response MUST start with '{' and end with '}'. Nothing else.
 
 Your task:
 1. Generate Python code to fix the failing test
 2. Use the analysis provided
 3. Write clean, valid Playwright code
 
-Response format (EXACT JSON):
+**EXAMPLE VALID RESPONSE**:
 {
-  "patch_code": "page.get_by_role('button', name='Submit').click()",
-  "explanation": "brief explanation of the fix"
+  "patch_code": "await page.locator('#password').fill('my-secret-pass')",
+  "explanation": "Updated selector to use stable ID instead of unstable CSS path."
 }
 
+Response format (EXACT JSON):
+{
+  "patch_code": "string",
+  "explanation": "string"
+}
+
+Do NOT output 'await page.css' or 'await page.get_by_css'.
+Use standard Playwright methods: locator(), get_by_label(), get_by_role(), etc.
 Do NOT include markdown (```python) in patch_code.
 Do NOT include any text before or after the JSON object.
 """
@@ -130,10 +123,10 @@ Do NOT include any text before or after the JSON object.
     @staticmethod
     def create_validation_agent():
         """Create the Validation Agent"""
-        api_key = config.llm.openai_api_key
-        model = config.llm.openai_model
+        api_key = config.OPENAI_API_KEY
+        model = config.OPENAI_MODEL
         
-        base_url = getattr(config.llm, 'openai_base_url', None)
+        base_url = config.OPENAI_BASE_URL
         client_args = {
             "api_key": api_key,
             "model_id": model,
@@ -148,20 +141,29 @@ Do NOT include any text before or after the JSON object.
             name="ValidationAgent",
             instructions="""You are an expert Python code reviewer specializing in Playwright.
 
-**CRITICAL**: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks.
-Start with { and end with }. Nothing else.
+**CRITICAL**: You MUST respond with ONLY valid JSON. 
+NO EXPLANATIONS, NO MARKDOWN, NO CODE BLOCKS, NO CONVERSATION.
+Your response MUST start with '{' and end with '}'. Nothing else.
 
 Your task:
 1. Validate the proposed patch
 2. Check Python syntax and Playwright API
 3. Assess selector robustness
 
-Response format (EXACT JSON):
+**EXAMPLE VALID RESPONSE**:
 {
   "is_valid": true,
-  "quality_score": 0.85,
-  "issues": ["issue1", "issue2"],
-  "recommendations": ["rec1", "rec2"]
+  "quality_score": 0.9,
+  "issues": [],
+  "recommendations": ["Ensure the password is not hardcoded in real scenarios."]
+}
+
+Response format (EXACT JSON):
+{
+  "is_valid": boolean,
+  "quality_score": number,
+  "issues": ["string"],
+  "recommendations": ["string"]
 }
 
 Do NOT include any text before or after the JSON object.

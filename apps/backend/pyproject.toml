@@ -18,7 +18,8 @@ dependencies = [
     "opentelemetry-exporter-otlp>=1.20.0",
     "gen-tests-shared-models",
     "loguru>=0.7.0",
-    "agent-framework-devui>=1.0.0b1"
+    "agent-framework-devui>=1.0.0b1",
+    "mcp>=0.1.0"
 ]
 
 [tool.hatch.build.targets.wheel]

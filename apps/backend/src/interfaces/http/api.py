@@ -71,10 +71,45 @@ try:
 
     
     # Mount the Dev UI API at /v1 if that's what's missing
-    # Actually, the Dev UI frontend usually expects the API at root of its base URL.
-    # If the dev_ui_app itself prefixes everything with /v1, then we mount at /.
-    # If it DOES NOT, we might need a different mount point.
     app.mount("/", dev_ui_app) 
+
+    # Redis bridge for real-time events
+    import asyncio
+    import redis.asyncio as async_redis
+    import json
+
+    async def redis_event_bridge():
+        """Listen to Redis and emit events to Dev UI"""
+        logger = logging.getLogger("api.redis_bridge")
+        logger.info(f"Starting Redis bridge on {config.REDIS_URL}...")
+        try:
+            r = async_redis.from_url(config.REDIS_URL, decode_responses=True)
+            pubsub = r.pubsub()
+            await pubsub.subscribe("agent-events")
+            
+            async for message in pubsub.listen():
+                if message["type"] == "message":
+                    try:
+                        data = json.loads(message["data"])
+                        if data.get("type") == "executor_event":
+                            # Map to DevServer event structure
+                            # DevServer.emit_external_event expects a dict that looks like a workflow event
+                            dev_server.emit_external_event({
+                                "executor_id": data["executor_id"],
+                                "event_type": "ExecutorInvokedEvent" if data["state"] == "running" else "ExecutorCompletedEvent",
+                                "data": data.get("output") or data.get("error") or "",
+                                "timestamp": data["timestamp"]
+                            })
+                    except Exception as e:
+                        logger.error(f"Error processing Redis event: {e}")
+        except Exception as e:
+            logger.error(f"Redis bridge connection error: {e}")
+            await asyncio.sleep(5)  # Retry delay
+            asyncio.create_task(redis_event_bridge())
+
+    @app.on_event("startup")
+    async def startup_event():
+        asyncio.create_task(redis_event_bridge())
 
 except ImportError as e:
     print(f"Failed to import DevServer: {e}")

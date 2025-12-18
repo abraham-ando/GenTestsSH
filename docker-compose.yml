@@ -44,6 +44,16 @@ services:
       - ./libs:/app/libs
     command: celery -A apps.backend.src.infrastructure.celery.app worker --loglevel=info
 
+  mcp-playwright:
+    image: mcr.microsoft.com/playwright:v1.49.0-jammy
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    command: >
+      sh -c "npm install -g @playwright/mcp && 
+             playwright-mcp-server --port 3001"
+
   frontend:
     build:
       context: .
